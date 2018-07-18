@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  mysql_network:
+    driver: "bridge"
+
+volumes:
+  db:
+    driver: "local"
+
+services:
+  dbmysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=homestead
+      - MYSQL_USER=homestead
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes:
+      - ./db:/var/lib/mysql  
+      - ./dump:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - mysql_network  
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: "always"
+    environment:
+      PMA_ARBITRARY: 1
+    ports:
+      - "8001:80"
+    depends_on:
+      - dbmysql
+    links:
+      - dbmysql
+    networks:
+      - mysql_network
